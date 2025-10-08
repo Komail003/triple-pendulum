@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Triple Pendulum — Scientific Simulation Panel</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="dashboard">
+      <!-- left column -->
+      <div class="left">
+        <div class="panel">
+          <div class="title">TRIPLE PENDULUM</div>
+          <div class="small">Scientific Simulation Panel</div>
+          <div style="height: 10px"></div>
+          <div
+            class="tiny-chart panel"
+            style="
+              padding: 10px;
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+            "
+          >
+            <div class="caption">Recent Motion</div>
+            <canvas
+              id="miniMotion"
+              style="width: 100%; height: 70px; border-radius: 6px"
+            ></canvas>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Parameters</h3>
+          <div class="stat-list">
+            <div class="stat">
+              <div>
+                <div class="caption">Length</div>
+                <div class="k">140 px</div>
+              </div>
+              <div class="v">arm</div>
+            </div>
+            <div class="stat">
+              <div>
+                <div class="caption">Gravity scale</div>
+                <div class="k">0.001</div>
+              </div>
+              <div class="v">sim</div>
+            </div>
+            <div class="stat">
+              <div>
+                <div class="caption">Trail Intensity</div>
+                <div class="k">Medium</div>
+              </div>
+              <div class="v">vis</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Motion</h3>
+          <div class="tiny-chart" style="padding: 10px">
+            <canvas
+              id="miniSpect"
+              style="width: 100%; height: 82px; border-radius: 6px"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- center -->
+      <div class="center">
+        <div class="visual-panel panel">
+          <canvas id="pendulumCanvas"></canvas>
+          <div class="grid-lines"></div>
+        </div>
+
+        <div class="controls panel">
+          <div class="label">Trail Intensity</div>
+          <input
+            id="trailSlider"
+            class="slider"
+            type="range"
+            min="0"
+            max="100"
+            value="55"
+          />
+          <div style="flex: 1"></div>
+          <button id="pauseBtn" class="btn">Pause</button>
+          <button
+            id="resetBtn"
+            class="btn"
+            style="background: linear-gradient(180deg, #2b59ff, #0f3bff)"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- right column -->
+      <div class="right">
+        <div class="gauge panel">
+          <div style="text-align: center">
+            <div class="caption" style="margin-bottom: 6px">SYSTEM ENERGY</div>
+            <div class="value" id="energyVal">8.58</div>
+            <div
+              class="caption"
+              style="font-size: 12px; margin-top: 6px; color: var(--muted)"
+            >
+              normalized
+            </div>
+          </div>
+        </div>
+
+        <div class="panel mini-chart">
+          <div style="width: 100%">
+            <div class="caption">Energy Distribution</div>
+            <canvas
+              id="energyChart"
+              style="width: 100%; height: 88px; margin-top: 8px"
+            ></canvas>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Diagnostics</h3>
+          <div class="stat-row">
+            <div class="caption">FPS</div>
+            <div class="k" id="fps">0</div>
+          </div>
+          <div class="stat-row" style="margin-top: 8px">
+            <div class="caption">Bodies</div>
+            <div class="k" id="bodiesCount">3</div>
+          </div>
+          <div style="height: 8px"></div>
+          <div class="footer-note">Simulation refreshed every 15s</div>
+        </div>
+      </div>
+    </div>
+    <script src="logic.js"></script>
+  </body>
+</html>

@@ -1,0 +1,299 @@
+:root {
+  --bg1: #040519;
+  --bg2: #071033;
+  --panel: #071428;
+  --neon: #5ad0ff;
+  --neon-2: #8aa6ff;
+  --accent: #62d0ff;
+  --muted: #8ea6b8;
+  --glass: rgba(255, 255, 255, 0.03);
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial;
+}
+body {
+  background: radial-gradient(
+    1200px 800px at 30% 20%,
+    #041028 0%,
+    #020615 35%,
+    #00010a 100%
+  );
+  color: #cfeeff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* Container */
+.dashboard {
+  box-sizing: border-box;
+  width: calc(100vw - 40px);
+  height: calc(100vh - 40px);
+  margin: 20px;
+  border-radius: 14px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 300px 1fr 320px;
+  grid-template-rows: 1fr auto;
+  gap: 18px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.01),
+    rgba(255, 255, 255, 0)
+  );
+  border: 1px solid rgba(90, 160, 255, 0.06);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+/* panel base */
+.panel {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.012),
+    rgba(255, 255, 255, 0.006)
+  );
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid rgba(120, 170, 255, 0.04);
+  box-shadow: 0 6px 18px rgba(2, 8, 18, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+.panel h3 {
+  margin: 0 0 12px 0;
+  font-weight: 600;
+  color: var(--neon-2);
+  letter-spacing: 0.6px;
+}
+.small {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Left column */
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent);
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+.stat .k {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e6fbff;
+}
+.stat .v {
+  font-size: 14px;
+  color: var(--muted);
+}
+.tiny-chart {
+  height: 72px;
+  border-radius: 6px;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 20, 30, 0.6),
+    rgba(10, 22, 34, 0.3)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* center */
+.center {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px;
+}
+.visual-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(10, 20, 50, 0.15),
+    rgba(0, 0, 0, 0.25)
+  );
+  border: 1px solid rgba(100, 150, 255, 0.03);
+}
+/* Pendulum canvas fits */
+#pendulumCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.008),
+    rgba(255, 255, 255, 0.004)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+.label {
+  font-size: 13px;
+  color: var(--muted);
+  min-width: 120px;
+}
+.slider {
+  -webkit-appearance: none;
+  width: 360px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--neon), var(--neon-2));
+  outline: none;
+  box-shadow: 0 3px 10px rgba(80, 170, 255, 0.16);
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(90, 160, 255, 0.3);
+  border: 3px solid rgba(80, 150, 255, 0.9);
+}
+.btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #0ea5c1, #079fb6);
+  border: none;
+  color: #021726;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(6, 22, 30, 0.5);
+}
+
+/* right */
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.gauge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.01),
+    rgba(255, 255, 255, 0.003)
+  );
+  position: relative;
+  border: 1px solid rgba(120, 180, 255, 0.03);
+}
+.gauge .value {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--neon);
+  text-shadow: 0 6px 26px rgba(80, 170, 255, 0.14);
+}
+
+.mini-chart {
+  height: 110px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.footer-note {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  padding: 6px;
+}
+
+/* UI decorations - faint grid and borders */
+.grid-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.01) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px;
+  opacity: 0.06;
+}
+
+/* header text in left */
+.title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--neon);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+/* rounded neon outline for main canvas */
+.visual-panel:after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 10px;
+  pointer-events: none;
+  box-shadow: 0 0 60px rgba(80, 160, 255, 0.06) inset;
+}
+
+/* responsive */
+@media (max-width: 1100px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    padding: 12px;
+    gap: 12px;
+  }
+  .left,
+  .right {
+    order: 2;
+  }
+  .center {
+    order: 1;
+  }
+}
+
+/* small labels and captions */
+.caption {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
