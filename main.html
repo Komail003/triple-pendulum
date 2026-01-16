@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Red Neon Triple Pendulum — Scientific UI</title>
+
+    <style>
+      :root {
+        --bg-1: #070006;
+        --bg-2: #090007;
+        --panel: rgba(20, 8, 10, 0.35);
+        --neon-red: #ff2b4a;
+        --neon-red-2: #ff4040;
+        --glass: rgba(255, 255, 255, 0.03);
+        --muted: rgba(255, 255, 255, 0.12);
+        --accent: rgba(255, 80, 80, 0.12);
+        --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: var(--font);
+        background: radial-gradient(
+          1200px 800px at 40% 30%,
+          #0a0010 0%,
+          #040004 40%,
+          #000 100%
+        );
+        color: #f8f4f6;
+        overflow: hidden;
+      }
+      .app {
+        width: 100%;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 320px 1fr 320px;
+        grid-template-rows: 84px 1fr 140px;
+        gap: 18px;
+        padding: 24px;
+        box-sizing: border-box;
+        align-items: stretch;
+      }
+
+      /* Panels */
+      .panel {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        border-radius: 12px;
+        border: 1px solid rgba(255, 80, 80, 0.06);
+        box-shadow: 0 6px 28px rgba(0, 0, 0, 0.6),
+          inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        padding: 14px;
+        backdrop-filter: blur(6px) saturate(120%);
+      }
+
+      /* Header */
+      .header {
+        grid-column: 1 / 4;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .title {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--neon-red), #b30017);
+        box-shadow: 0 6px 30px rgba(255, 40, 60, 0.12),
+          0 0 18px rgba(255, 30, 50, 0.14) inset;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #fff;
+        font-size: 18px;
+      }
+      .title h1 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 1px;
+      }
+      .title p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .header-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .control-btn {
+        background: transparent;
+        border: 1px solid rgba(255, 40, 60, 0.12);
+        padding: 8px 12px;
+        border-radius: 10px;
+        color: var(--neon-red);
+        cursor: pointer;
+        font-weight: 700;
+        backdrop-filter: blur(4px);
+      }
+      .control-btn.ghost {
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        color: #fff;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+      }
+
+      /* Left column (data panels) */
+      .left-col {
+        grid-column: 1 / 2;
+        grid-row: 2 / 3;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .panel .panel-title {
+        font-size: 13px;
+        color: var(--neon-red);
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        margin-bottom: 8px;
+      }
+      .data-block {
+        height: 140px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .small-chart {
+        flex: 1;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 24, 60, 0.02),
+          rgba(255, 24, 60, 0.01)
+        );
+        border-radius: 8px;
+        padding: 8px;
+        border: 1px solid rgba(255, 40, 60, 0.04);
+      }
+      .kv {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .big-number {
+        font-size: 28px;
+        color: #fff;
+        font-weight: 800;
+      }
+
+      /* Center (canvas) */
+      .center {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #renderCanvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        border-radius: 12px;
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8),
+          inset 0 1px 0 rgba(255, 255, 255, 0.02);
+        background: radial-gradient(
+            800px 600px at 50% 40%,
+            rgba(12, 0, 10, 0.6),
+            transparent 20%
+          ),
+          transparent;
+      }
+
+      /* Right column (gauges) */
+      .right-col {
+        grid-column: 3 / 4;
+        grid-row: 2 / 3;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .gauge {
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Bottom controls */
+      .bottom {
+        grid-column: 1 / 4;
+        grid-row: 3 / 4;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+      .slider {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.01),
+          rgba(255, 255, 255, 0.01)
+        );
+        border: 1px solid rgba(255, 40, 60, 0.04);
+      }
+      .slider input[type="range"] {
+        width: 100%;
+      }
+      .info {
+        width: 260px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        justify-content: center;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      /* Neon effects for numbers */
+      .neon-number {
+        color: var(--neon-red);
+        text-shadow: 0 0 8px rgba(255, 40, 60, 0.9),
+          0 0 20px rgba(255, 20, 40, 0.6);
+        font-weight: 900;
+        font-size: 28px;
+      }
+
+      /* small styles */
+      .flex-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--neon-red);
+        box-shadow: 0 0 8px rgba(255, 40, 60, 0.9);
+      }
+
+      /* responsive */
+      @media (max-width: 1000px) {
+        .app {
+          grid-template-columns: 1fr;
+          grid-template-rows: 76px 1fr 260px;
+          padding: 12px;
+        }
+        .left-col,
+        .right-col {
+          display: none;
+        }
+        .center {
+          grid-column: 1 / -1;
+          grid-row: 2 / 3;
+        }
+        .bottom {
+          grid-column: 1 / -1;
+          grid-row: 3 / 4;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- Header -->
+      <div class="header panel">
+        <div class="title">
+          <div class="logo">TP</div>
+          <div>
+            <h1>TRIPLE PENDULUM SIM</h1>
+            <p>Scientific Monitoring Interface — red neon diagnostics</p>
+          </div>
+        </div>
+
+        <div class="header-controls">
+          <button class="control-btn ghost" id="pauseBtn">Pause</button>
+          <button class="control-btn" id="resetBtn">Randomize</button>
+        </div>
+      </div>
+
+      <!-- Left panels -->
+      <div class="left-col">
+        <div class="panel data-block">
+          <div class="panel-title">Motion Overview</div>
+          <div class="small-chart" id="chart1">
+            <!-- small synthetic chart drawn in canvas by JS -->
+          </div>
+          <div class="kv">
+            <div class="muted">Angular momentum</div>
+            <div class="big-number" id="momVal">--</div>
+          </div>
+        </div>
+
+        <div class="panel data-block">
+          <div class="panel-title">Parameters</div>
+          <div class="kv">
+            <div class="muted">Gravity</div>
+            <div id="gravVal" class="muted">0.001</div>
+          </div>
+          <div class="kv">
+            <div class="muted">Length</div>
+            <div id="lenVal" class="muted">120</div>
+          </div>
+          <div class="kv">
+            <div class="muted">Trail</div>
+            <div id="trailVal" class="muted">Dynamic</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center canvas area -->
+      <div class="center panel" id="centerPanel">
+        <canvas id="renderCanvas"></canvas>
+        <!-- overlay compass or readout -->
+        <div
+          style="
+            position: absolute;
+            left: 18px;
+            top: 18px;
+            color: var(--muted);
+            font-size: 13px;
+          "
+        >
+          Status: <span class="neon-number" id="stat">ACTIVE</span>
+        </div>
+      </div>
+
+      <!-- Right panels -->
+      <div class="right-col">
+        <div class="panel gauge">
+          <div style="width: 100%; text-align: center">
+            <div class="panel-title">Energy</div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-top: 6px;
+              "
+            >
+              <div class="neon-number" id="energyVal">0.0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Diagnostics</div>
+          <div class="kv">
+            <div class="muted">Temp</div>
+            <div class="muted">36°C</div>
+          </div>
+          <div class="kv">
+            <div class="muted">Load</div>
+            <div class="muted">Stable</div>
+          </div>
+          <div class="kv">
+            <div class="muted">FPS</div>
+            <div class="muted" id="fps">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom controls -->
+      <div class="bottom">
+        <div class="slider panel">
+          <div
+            style="
+              width: 220px;
+              font-size: 13px;
+              color: var(--muted);
+              font-weight: 700;
+            "
+          >
+            Trail Intensity
+          </div>
+          <input
+            type="range"
+            id="trailSlider"
+            min="0"
+            max="1"
+            step="0.01"
+            value="1"
+          />
+        </div>
+
+        <div class="info panel">
+          <div class="muted">Controls</div>
+          <div class="flex-row">
+            <div class="dot"></div>
+            <div class="muted">Red Neon Trail • Auto-randomize every 15s</div>
+          </div>
+        </div>
+
+        <div style="flex: 0 0 320px"></div>
+      </div>
+    </div>
+
+    <!-- Matter.js -->
+    <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+    <script>
+      (function () {
+        const {
+          Engine,
+          Render,
+          Runner,
+          Bodies,
+          Body,
+          Composite,
+          Composites,
+          Constraint,
+          Events,
+          Mouse,
+          MouseConstraint,
+          Vector,
+        } = Matter;
+
+        const canvas = document.getElementById("renderCanvas");
+        const W = canvas.clientWidth || 800;
+        const H = canvas.clientHeight || 600;
+        canvas.width = Math.max(600, window.innerWidth * 0.55);
+        canvas.height = Math.max(500, window.innerHeight * 0.7);
+
+        // engine and render
+        const engine = Engine.create();
+        const world = engine.world;
+        engine.gravity.scale = 0.001;
+
+        const render = Render.create({
+          canvas: canvas,
+          engine: engine,
+          options: {
+            width: canvas.width,
+            height: canvas.height,
+            wireframes: false,
+            background: "transparent",
+            pixelRatio: window.devicePixelRatio || 1,
+          },
+        });
+        Render.run(render);
+        const runner = Runner.create();
+        Runner.run(runner, engine);
+
+        // pendulum params
+        const group = Body.nextGroup(true);
+        const length = 120;
+        const width = 24;
+        const centerX = canvas.width / 2;
+        const startY = 120;
+
+        // create triple pendulum (3 arms)
+        const pendulum = Composites.stack(
+          centerX - 60,
+          startY,
+          3,
+          1,
+          -20,
+          0,
+          (x, y) => {
+            return Bodies.rectangle(x, y, length, width, {
+              collisionFilter: { group },
+              frictionAir: 0,
+              chamfer: 8,
+              render: {
+                fillStyle: "rgba(255,10,10,0.06)",
+                strokeStyle: "rgba(255,60,60,0.9)",
+                lineWidth: 2,
+              },
+            });
+          }
+        );
+
+        Composites.chain(pendulum, 0.45, 0, -0.45, 0, {
+          stiffness: 0.9,
+          length: 0,
+          angularStiffness: 0,
+        });
+
+        Composite.add(
+          pendulum,
+          Constraint.create({
+            bodyB: pendulum.bodies[0],
+            pointB: { x: -length * 0.42, y: 0 },
+            pointA: {
+              x: pendulum.bodies[0].position.x - length * 0.42,
+              y: pendulum.bodies[0].position.y,
+            },
+            stiffness: 0.1,
+            length: 0,
+          })
+        );
+
+        // initial twist
+        Body.rotate(pendulum.bodies[1], -Math.PI * 0.3);
+        Body.rotate(pendulum.bodies[2], Math.PI * 0.22);
+
+        Composite.add(world, pendulum);
+
+        // last arm tip trail
+        const trail = [];
+        const lastArm = pendulum.bodies[pendulum.bodies.length - 1];
+        const armHalf = length / 2;
+        let trailIntensity = 1;
+
+        // small synthetic chart canvas inside left panel (motion)
+        const chartCanvas = document.createElement("canvas");
+        chartCanvas.width = 280;
+        chartCanvas.height = 88;
+        const chartCtx = chartCanvas.getContext("2d");
+        document.getElementById("chart1").appendChild(chartCanvas);
+        const motionSamples = [];
+
+        // FPS and diagnostics
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 0;
+
+        Events.on(render, "afterRender", () => {
+          // compute tip position
+          const angle = lastArm.angle;
+          const tip = {
+            x: lastArm.position.x + Math.cos(angle) * armHalf,
+            y: lastArm.position.y + Math.sin(angle) * armHalf,
+          };
+
+          // add to trail with timestamp and speed
+          trail.unshift({
+            pos: Vector.clone(tip),
+            speed: lastArm.speed,
+            t: performance.now(),
+          });
+          if (trail.length > 1800) trail.pop();
+
+          // draw neon trail on top of rendered scene using same canvas context
+          const ctx = render.context;
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+
+          // iterate and draw with increasing fade
+          for (let i = 0; i < trail.length; i++) {
+            const p = trail[i];
+            const age = (performance.now() - p.t) / 1000; // seconds
+            const alpha = Math.max(0, (1 - age / 6) * trailIntensity);
+            // dynamic glow radius based on speed and index
+            const radius =
+              1 + Math.min(3, p.speed * 6) + Math.max(0, 2 - i * 0.002);
+            // color shifts slightly
+            const hue = 0; // red
+            ctx.beginPath();
+            ctx.fillStyle = `hsla(${hue}, 100%, ${
+              50 + Math.min(40, p.speed * 30)
+            }%, ${alpha})`;
+            ctx.shadowBlur = 20 * alpha;
+            ctx.shadowColor = `rgba(255,40,60,${alpha})`;
+            ctx.arc(p.pos.x, p.pos.y, radius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+
+          // draw a subtle neon stroke on each arm end for clarity
+          ctx.save();
+          ctx.strokeStyle = "rgba(255,60,60,0.22)";
+          ctx.lineWidth = 2;
+          for (let b of pendulum.bodies) {
+            ctx.beginPath();
+            ctx.ellipse(b.position.x, b.position.y, 6, 6, 0, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255,20,30,0.04)";
+            ctx.fill();
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          // update motion samples for left small chart
+          motionSamples.unshift(Math.abs(lastArm.speed));
+          if (motionSamples.length > 120) motionSamples.pop();
+          drawMotionChart();
+
+          // update diagnostics and energy
+          document.getElementById("energyVal").textContent =
+            computeEnergy().toFixed(2);
+          document.getElementById("momVal").textContent =
+            computeMomentum().toFixed(2);
+
+          // FPS
+          frameCount++;
+          const now = performance.now();
+          if (now - lastTime >= 1000) {
+            fps = Math.round((frameCount * 1000) / (now - lastTime));
+            frameCount = 0;
+            lastTime = now;
+            document.getElementById("fps").textContent = fps;
+          }
+        });
+
+        // compute simple 'energy' proxy (sum of kinetic energies)
+        function computeEnergy() {
+          let E = 0;
+          for (let b of pendulum.bodies) {
+            const v = b.speed || 0;
+            const m = b.mass || 1;
+            E += 0.5 * m * v * v;
+          }
+          return E;
+        }
+        function computeMomentum() {
+          let P = 0;
+          for (let b of pendulum.bodies) {
+            P += (b.mass || 1) * b.speed;
+          }
+          return P;
+        }
+
+        // small motion chart drawing
+        function drawMotionChart() {
+          const ctx = chartCtx;
+          ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+          ctx.fillStyle = "rgba(255,20,30,0.02)";
+          ctx.fillRect(0, 0, chartCanvas.width, chartCanvas.height);
+          ctx.strokeStyle = "rgba(255,40,60,0.9)";
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          const len = motionSamples.length;
+          for (let i = 0; i < len; i++) {
+            const v = motionSamples[i];
+            const x =
+              chartCanvas.width - (i / (len - 1 || 1)) * chartCanvas.width;
+            const y =
+              chartCanvas.height - Math.min(1, v / 1.2) * chartCanvas.height;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+
+        // mouse control
+        const mouse = Mouse.create(canvas);
+        const mConstraint = MouseConstraint.create(engine, {
+          mouse: mouse,
+          constraint: { stiffness: 0.15, render: { visible: false } },
+        });
+        Composite.add(world, mConstraint);
+
+        // UI controls
+        const trailSlider = document.getElementById("trailSlider");
+        trailSlider.addEventListener("input", (e) => {
+          trailIntensity = parseFloat(e.target.value);
+        });
+
+        const pauseBtn = document.getElementById("pauseBtn");
+        let paused = false;
+        pauseBtn.addEventListener("click", () => {
+          paused = !paused;
+          if (paused) {
+            Runner.stop(runner);
+            pauseBtn.textContent = "Resume";
+            document.getElementById("stat").textContent = "PAUSED";
+          } else {
+            Runner.run(runner, engine);
+            pauseBtn.textContent = "Pause";
+            document.getElementById("stat").textContent = "ACTIVE";
+          }
+        });
+
+        document
+          .getElementById("resetBtn")
+          .addEventListener("click", randomizePendulum);
+
+        // auto-randomize every 15 seconds
+        const intervalId = setInterval(randomizePendulum, 15000);
+
+        function randomizePendulum() {
+          // apply small random rotations and impulses to create fresh motion
+          pendulum.bodies.forEach((b, i) => {
+            const angle = (Math.random() - 0.5) * Math.PI * 0.6;
+            Body.rotate(b, angle, b.position);
+            Body.applyForce(b, b.position, {
+              x: (Math.random() - 0.5) * 0.004,
+              y: (Math.random() - 0.5) * 0.004,
+            });
+          });
+          // clear trail a bit
+          trail.length = 0;
+        }
+
+        // responsive canvas sizing on window resize
+        window.addEventListener("resize", () => {
+          const parent = canvas.parentElement;
+          canvas.width = Math.max(600, parent.clientWidth - 40);
+          canvas.height = Math.max(480, parent.clientHeight - 40);
+          Render.lookAt(render, {
+            min: { x: 0, y: 0 },
+            max: { x: canvas.width, y: canvas.height },
+          });
+        });
+
+        // cleanup on page unload
+        window.addEventListener("beforeunload", () => {
+          clearInterval(intervalId);
+          Render.stop(render);
+          Runner.stop(runner);
+          Composite.clear(world);
+          engine.events = {};
+        });
+
+        // initial diagnostics update
+        document.getElementById("gravVal").textContent =
+          engine.gravity.scale.toFixed(4);
+        document.getElementById("lenVal").textContent = length;
+      })();
+    </script>
+  </body>
+</html>
